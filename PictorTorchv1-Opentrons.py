@@ -16,7 +16,7 @@ from opentrons import container, instruments
 #--------------------------------------------------------------------------------------
 #Set tiprack to be on the left edge so it can be adapted for low module use (or empty out space left of tip rack)
 #TODO: Add JSON HTTP POST from main form to select the number of modules
-tiprack200 = container.load('tiprack-200ul','A2','tiprack')
+tiprack = container.load('tiprack-200ul','B1','tiprack')
 #plate = container.load('96-flat','B1','plate')
 plate = container.create(
     'slide_deck',
@@ -25,11 +25,11 @@ plate = container.create(
     diameter = 7.2,
     spacing = (9,9)#skip any tipCount % 3 == 0 rows 
 )
-plate = container.load(slide_deck,'B1')
-sample = container.load('96-PCR-tall', slot)
-trash = container.load('point','D2')
+plate = container.load('slide_deck','D1')
+sample = container.load('96-PCR-tall', 'B2')
+trash = container.load('point','C3')
 fluidtrash = container.load('point','C2')
-trough = container.load('trough-12row', slot)
+trough = container.load('trough-12row', 'C1')
 
 p300 = instruments.Pipette(
     axis='b',
@@ -54,7 +54,7 @@ p50 = instruments.Pipette(
 #--------------------------------------------------------------------------------------
 #Generic washing function
 def wash(row):
-    p300.pick_up_tip(tiprack200(row))
+    p300.pick_up_tip(tiprack(row))
     for i in range(3):
         p300.aspirate(100,trough(row))
         for j in range(2):
@@ -71,7 +71,7 @@ def merge(num):
 
 #Generic aspiration function 
 def aspirate(row):
-    p300.pick_up_tip(tiprack200(row))
+    p300.pick_up_tip(tiprack(row))
     for i in range(2):
         p300.aspirate(75,plate(i))
     p300.dispense(fluidtrash)
@@ -99,7 +99,7 @@ p50.pick_up_tip(tiprack[96-i]) #Reserve tips in the back row for sample dilution
 #Step 1  -  Dispense Samples
 robot.comment('Step 1 - Dispense Samples')
 for i in range(2):
-    p300.pick_up_tip(tiprack200(i))
+    p300.pick_up_tip(tiprack(i))
     p300.aspirate(50,sample(i))
     p300.dispense(50,plate(i))
     p300.return_tip()
@@ -111,30 +111,30 @@ p300.delay(minutes = 30)
 #Step 3  -  Aspirate Samples
 robot.comment('Step 3 - Aspirate Samples')
 for i in range(2):
-    p300.pick_up_tip(tiprack200(i))
+    p300.pick_up_tip(tiprack(i))
     p300.aspirate(75,plate(i))
     p300.dispense(fluidtrash)
     p300.drop_tip()
 
 #Step 4  -  Wash 1
 robot.comment('Step 4 - Wash 1 ')
-p300.pick_up_tip(tiprack200(tipCount))
+p300.pick_up_tip(tiprack(tipCount))
 p300.aspirate(100,trough[merge(tipCount)])
 for i in range(2):
     p300.dispense(50,plate(i))
 
 p300.aspirate(75,plate(0))
-p300.dispense(fluidwaste)
+p300.dispense(fluidtrash)
 p300.drop_tip()
 
-p300.pick_up_tip(tiprack200(tipCount))
+p300.pick_up_tip(tiprack(tipCount))
 p300.aspirate(75,plate(1))
 p300.dispense(fluidtrash)
 p300.drop_tip()
 
 #Step 5  -  Dispense Primary Antibody
 robot.comment('Step 5 - Dispense Primary Antibody')
-p300.pick_up_tip(tiprack200(tipCount))
+p300.pick_up_tip(tiprack(tipCount))
 p300.mix(3,50,trough[merge(tipCount)])
 p300.aspirate(100)
 for i in range(2):
@@ -188,8 +188,8 @@ aspirate(tipCount)
 
 #Step 16 -  Wash 4
 robot.comment('Step 16 - Wash 4')
-p300.pick_up_tip(tiprack200(row))
-p300.aspirate(100,trough(row))
+p300.pick_up_tip(tiprack(tipCount))
+p300.aspirate(100,trough(tipCount))
     for i in range(2):
         p300.dispense(50,plate(i))
     p300.delay(seconds = 1)
