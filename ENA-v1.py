@@ -346,7 +346,7 @@ robot.comment('Step 10 - Incubation')
 #Step 10.5 - Prepare Substrate
 robot.comment('Step 9.5 - Preparing Substrate')
 p1000.pick_up_tip(tiprack2(83))
-p1000.transfer(250,
+p1000.transfer(200,
                 cooldeck('A5'),
                 tuberack2('C2'),
                 mix_before = (2,1000),
